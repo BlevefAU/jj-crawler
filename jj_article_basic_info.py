@@ -9,6 +9,7 @@ import time
 from bs4 import BeautifulSoup
 
 
+# read agents function
 def load_user_agents(file, pattern):
     list = []
     selection = []
@@ -22,33 +23,44 @@ def load_user_agents(file, pattern):
     return selection
 
 
+# pick up pattern in agent list
 agents_list = load_user_agents('user_agents.json', 'Googlebot\\/')
 
+# modify the required number here
+for novelid in range(1724500, 1724505):
+    url = 'https://www.jjwxc.net/onebook.php?novelid='+str(novelid)
+    head = {
+        'User-Agent': random.choice(agents_list),
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'text/html',
+    }
+    result = requests \
+        .session() \
+        .get(url, headers=head)
 
+    # jjwxc using gb18030 as html encoding (2021)
+    result.encoding = 'gb18030'
+    html = result.content
 
-url = 'https://www.jjwxc.net/onebook.php?novelid=1724503'
+    # convert to html
+    raw_data = BeautifulSoup(html, 'html.parser')
 
+    try:
+        # if the article data exist
+        raw_data.find(id='oneboolt')
+        
+        print(raw_data.find("span",class_="bigtext").get_text())
+        print(raw_data.find(id='novelintro').get_text())
+        print(raw_data.find("span", itemprop="genre").get_text())
 
-head = {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
-    'X-Requested-With': 'XMLHttpRequest',
-    'AlexaToolbar-ALX_NS_PH': 'AlexaToolbar/alx-4.0',
-    'Accept-Language': 'zh-CN,zh;q=0.8,en;q=0.6,ja;q=0.4',
-    'Accept': 'application/json, text/javascript, */*; q=0.01',
-    'Content-Type': 'text/html',
-}
+        print("________________________")
 
-
-#使用post会报错 (2021/5/2)
-jscontent = requests \
-    .session() \
-    .get(url,headers=head) 
-
-jscontent.encoding = 'gb18030'
-html = jscontent.content
-raw_data = BeautifulSoup(html, 'html.parser')
-
-print(raw_data.find(id='novelintro').get_text())
-
-# with open('test.txt', 'w', encoding="utf-8") as f:
-#     f.write(html)
+        # try:
+        #     conn = pymysql.connect(
+        #     host='localhost', user='root', passwd='root', db='jjwxc', charset='utf8')   
+        # except Exception as e:
+        #     print(e)
+    except Exception as e:
+        # eles print error and pass
+        print(e)
+        pass

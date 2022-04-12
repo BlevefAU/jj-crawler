@@ -48,12 +48,14 @@ for novelid in range(1724500, 1724505):
     try:
         # if the article data exist
         raw_data.find(id='oneboolt')
-        
-        print(raw_data.find("span",class_="bigtext").get_text())
-        print(raw_data.find(id='novelintro').get_text())
-        print(raw_data.find("span", itemprop="genre").get_text())
+        try:
+            print(raw_data.find("span",class_="bigtext").get_text())
+            print(raw_data.find(id='novelintro').get_text())
+            print(raw_data.find("span", itemprop="genre").get_text())
 
-        print("________________________")
+            print("________________________")
+        except Exception as e:
+            print(e)
 
         # try:
         #     conn = pymysql.connect(
